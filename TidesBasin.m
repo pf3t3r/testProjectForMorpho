@@ -106,26 +106,26 @@ U=Q./A;         % Flow velocity in m/s
 % fit to the phase determines wave number k. 
 
 Nsteps=floor(Td1/deltaT);
-% for px=1:Nx-1
-%     coefin=[0.1, 1, 0.2, 0.1, 1, 0.2, 0.1];
-%     coefout=nlinfit(time(end-Nsteps:end),Z(px,end-Nsteps:end),@harmfit,coefin);
-%     Z0(px)=
-%     ZM2(px)=
-%     ZM4(px)=
-%     ZM6(px)=
-%     phaseZM2(px)=
-%     phaseZM4(px)=
-%     phaseZM6(px)=
-%     coefin=[0.1, 0.3,1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
-%     coefout=nlinfit(time(end-Nsteps:end),U(px,end-Nsteps:end),@harmfit,coefin);
-%     U0(px)=
-%     UM2(px)=
-%     UM4(px)=
-%     UM6(px)=
-%     phaseUM2(px)=
-%     phaseUM4(px)=
-%     phaseUM6(px)=
-% end
+for px=1:Nx-1
+coefin=[0.1, 0.3,1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
+coefout=nlinfit(time(end-Nsteps:end),Z(px,end-Nsteps:end),@harmfit,coefin);
+Z0(px)=coefout(1);
+ZM2(px)=sqrt(coefout(3).^2+coefout(7).^2);
+ZM4(px)=sqrt(coefout(4).^2+coefout(8).^2);
+ZM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
+phaseZM2(px)=atan(coefout(3)/coefout(7));
+phaseZM4(px)=atan(coefout(4)/coefout(8));
+phaseZM6(px)=atan(coefout(5)/coefout(9));
+coefin=[0.1, 0.3,1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
+coefout=nlinfit(time(end-Nsteps:end),U(px,end-Nsteps:end),@harmfit,coefin);
+U0(px)=coefout(1);
+UM2(px)=sqrt(coefout(3).^2+coefout(7).^2);
+UM4(px)=sqrt(coefout(4).^2+coefout(8).^2);
+UM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
+phaseUM2(px)=atan(coefout(3)/coefout(7));
+phaseUM4(px)=atan(coefout(4)/coefout(8));
+phaseUM6(px)=atan(coefout(5)/coefout(9));
+end
 
    
 
