@@ -11,13 +11,12 @@ clc;
 %**************************************************************************
 %**************************************************************************
 
-
-deltaT=150;              % time step in seconds. Choose appropriate time step yourself based on Courant number. 
-deltaX=2500;             % spatial step in meters
-Lbasin=2.15e5;           % Length of the basin or estuary in meters
+deltaT=45;               % time step in seconds. Choose appropriate time step yourself based on Courant number. 
+deltaX=500;              % spatial step in meters
+Lbasin=2e4;              % Length of the basin or estuary in meters
 Lb=4e4;                  % e-folding length scale for width.
-B0=5e3;                  % Width of the basin in meters at seaward side.
-H0=5.8;                  % Depth of basin.
+B0=1e3;                  % Width of the basin in meters at seaward side.
+H0=linspace(2,10,9);     % Depth of basin.
 M2amp=1;                 % Amplitude of M2 tide at seaward side.
 discharge=0;             % Constant river discharge at landward boundary. 
 Cd=2.5e-3;               % Drag coefficient
@@ -29,7 +28,7 @@ Cd=2.5e-3;               % Drag coefficient
 %**************************************************************************
 
 Td1=24*3600+50*60;
-Tm2=12*3600+25*60;      % M2 tidal period in seconds
+Tm2=12*3600+25*60;       % M2 tidal period in seconds
 time=0:deltaT:15*Tm2;    % time in seconds
 Nt=length(time);
 
@@ -45,11 +44,14 @@ wn(4)=3*wn(2);
 
 x=0:deltaX:Lbasin;
 Nx=length(x);
+%Length of still water depth vector 
+NH=length(H0);
 
-B(1:Nx)=B0*exp(-x/Lb);
-%B(1:Nx)=B0;                % when basin width has to be constant.
-H(1:Nx)=H0;
-
+f1=figure; 
+for i=1:NH
+%B(1:Nx)=B0*exp(-x/Lb);
+B(1:Nx)=B0;                % when basin width has to be constant.
+H(1:Nx)=H0(i);
 Z=zeros(Nx-1,Nt);           % Z points shifted half a grid point to the right with respect to Q points. we start with Q point, therefore 1 Z point less than Q points.      
 Q=zeros(Nx,Nt);
 A=(B.*H)'*ones(1,Nt);       % A at Q points
@@ -59,10 +61,19 @@ PG=zeros(Nx,Nt);
 Fric=zeros(Nx,Nt);
 
 % Boundary conditions
-Z(1,:)=M2amp*sin(2*pi*time/Tm2);          % prescribed water levels
+Z(1,:)=M2amp*sin(2*pi*time/Tm2);         % prescribed water levels
 Q(Nx,:)=-discharge;                      % river discharge; most often river discharge is taken zero.
 
-courant=sqrt(9.8*max(H))*deltaT/deltaX;
+courant=sqrt(9.8*max(H0))*deltaT/deltaX;
+
+%Courant criteria
+if courant<1
+end 
+
+if courant>=1
+    display('Courant criteria not met');
+    break; 
+end 
 
 % For numerical part, follow thesis of Speer (1984). Staggered grid. Z points shifted half deltaX to
 % the right of U points: 
@@ -98,6 +109,14 @@ end
 
 U=Q./A;         % Flow velocity in m/s
 
+%Tidally averaged flow velocities
+U_mean=0;
+for pm=1:Nt-1
+U_mean=U_mean+U(pm)
+end
+U_Mean=U_mean/Nt
+
+
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You
 % can determine HW level, LW level, moments of LW and HW, propagation speed of LW wave
@@ -107,7 +126,7 @@ U=Q./A;         % Flow velocity in m/s
 
 Nsteps=floor(Td1/deltaT);
 for px=1:Nx-1
-coefin=[0.1, 0.3,1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
+coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),Z(px,end-Nsteps:end),@harmfit,coefin);
 Z0(px)=coefout(1);
 ZM2(px)=sqrt(coefout(3).^2+coefout(7).^2);
@@ -116,7 +135,7 @@ ZM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseZM2(px)=atan(coefout(3)/coefout(7));
 phaseZM4(px)=atan(coefout(4)/coefout(8));
 phaseZM6(px)=atan(coefout(5)/coefout(9));
-coefin=[0.1, 0.3,1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
+coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),U(px,end-Nsteps:end),@harmfit,coefin);
 U0(px)=coefout(1);
 UM2(px)=sqrt(coefout(3).^2+coefout(7).^2);
@@ -126,6 +145,56 @@ phaseUM2(px)=atan(coefout(3)/coefout(7));
 phaseUM4(px)=atan(coefout(4)/coefout(8));
 phaseUM6(px)=atan(coefout(5)/coefout(9));
 end
+%We analyse the size of kL - lenght of estuary*length scale over which
+%tidal phase varies. 
+LkM2=(phaseUM2(1)+phaseUM2(Nx-1));
+display(LkM2);
+%Looking at the size of kL, we predict that the pumping model is
+%representative for M2 in this example, except for when the water height
+%<=2m. 
+
+subplot(3,2,1)
+plot(x(2:end),ZM2);
+hold on
+subplot(3,2,3)
+plot(x(2:end),UM2);
+hold on
+subplot(3,2,5)
+plot(x(2:end),phaseZM2);
+hold on
+legend('H=2','H=3','H=4','H=5','H=6','H=7','H=8','H=9','H=10');
+subplot(3,2,2)
+plot(x(2:end),ZM4);
+%I can't manage to create a subplot for M4 such that it only plots for
+%H=2,10m. 
+if i==1
+    hold on
+end
+if i>1
+    hold off
+end
+end
+legend('H=2','H=10');
+hold off
+
+%Explain the dependence of tidal amplitude on depth. 
+%M2 tidal amplitude increases landward for heights above 3m. This is due to
+%the negative correlation between friction and tidal amplitude. The
+%shallower the water, the higher the levels of friction and so the more
+%dampened is M2. This is opposite for M4 and M6 which are max in shallow
+%waters. As can be seen in subplot(3,2,5), M4 diminishes in size as H
+%growth, this is due to the decreased amount of interactions amongst M2
+%tides due to the decreased friction. 
+
+%For which depths are you close to the pumping model solution? 
+%Also remember that for pumping model the phase of M2 water 
+%level should be uniform in the basin.
+
+%As computed above, this linearisation is only possible for water heights 
+%over 2m. This can also be observed in the graph above by comparing the
+%amplitude and tidal speed phases. From equation (3.14) it follows that in 
+%short estuaries, the linearized component of tidal velocity is 90° out of 
+%phase with tidal elevation. This means that max U is when Z minimum.
 
    
 
