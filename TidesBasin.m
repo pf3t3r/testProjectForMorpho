@@ -211,3 +211,8 @@ grid on;
 %amplitude and tidal speed phases. From equation (3.14) it follows that in 
 %short estuaries, the linearized component of tidal velocity is 90° out of 
 %phase with tidal elevation. This means that max U is when Z minimum.
+
+% A2. Determine the deformation of the tide for the shallowest case (2 m)
+% and deepest case (10 m) by determining the amplitude of the M4 water
+% level as function of position in the basin. Explain the differences
+% between a deep and shallow basin.
