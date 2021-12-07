@@ -109,13 +109,12 @@ end
 
 U=Q./A;         % Flow velocity in m/s
 
-%Tidally averaged flow velocities
+% A3. Tidally averaged flow velocities
 U_mean=0;
 for pm=1:Nt-1
-U_mean=U_mean+U(pm)
+U_mean=U_mean+U(pm);
 end
-U_Mean=U_mean/Nt
-
+U_Mean=U_mean/Nt;
 
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You
@@ -156,7 +155,7 @@ end
 
 subplot(3,2,1)
 plot(x(2:end),ZM2);
-title('M2: elevation');
+title('M2: Along-basin Change in SSE');
 xlabel('L_{Basin} [m]');
 ylabel('SSE [m]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
@@ -164,7 +163,7 @@ grid on;
 
 subplot(3,2,3)
 plot(x(2:end),UM2);
-title('M2: flow velocity');
+title('M2: Along-basin Change in U');
 xlabel('L_{Basin} [m]');
 ylabel('U [m/s]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
@@ -173,7 +172,7 @@ grid on;
 
 subplot(3,2,5)
 plot(x(2:end),phaseZM2);
-title('M2: phase');
+title('M2: Along-basin Change in Phase');
 xlabel('L_{Basin} [m]');
 ylabel('\Phi [rad]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
@@ -182,15 +181,17 @@ grid on;
 subplot(3,2,2)
 yyaxis left;
 plot(x(2:end),ZM4(1,:));
-ylabel('SSE [m]');
 hold on
-yyaxis right;
 plot(x(2:end),ZM4(end,:));
+ylabel('SSE [m]');
+yyaxis right;
+plot(x(2:end),ZM2(1,:));
+plot(x(2:end),ZM2(end,:));
 hold off
-title('M4: elevation');
+title('M4 and M2: Deepest and Shallowest Case');
 xlabel('L_{Basin} [m]');
 ylabel('SSE [m]');
-legend('H = 2m','H = 10m');
+legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
 grid on;
 
 %A1. Explain the dependence of tidal amplitude on depth. 
@@ -216,3 +217,14 @@ grid on;
 % and deepest case (10 m) by determining the amplitude of the M4 water
 % level as function of position in the basin. Explain the differences
 % between a deep and shallow basin.
+
+% The tide deforms significantly in the shallowest case (2m). Between 
+% 0 and 800m, the M2 SSE declines in height by about 20%, while the 
+% M4 SSE increases from zero to a height of 0.1 m. It continues thereafter,
+% which seems to indicate that there is a phase lag between the loss in
+% amplitude of M2 and the corresponding amplitude gain by M4.
+% The M4 water level increases closer to the landward end of the basin in 
+% both cases, though the amplitudes are much higher in the case of a
+% shallow basin. For instance, in the case of a shallow basin (H = 2 m),
+% the M4 water level increases from 0 m to 2 m, while in the case of a
+% deep basin, the M4 water level increases only barely, from 0 m to 3 mm.
