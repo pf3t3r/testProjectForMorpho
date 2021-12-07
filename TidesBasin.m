@@ -1,4 +1,4 @@
-clear all;
+clear all; close all;
 clc;
 
 % Solving the shallow water equations in shallow basins and estuaries.
@@ -129,16 +129,16 @@ for px=1:Nx-1
 coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),Z(px,end-Nsteps:end),@harmfit,coefin);
 Z0(px)=coefout(1);
-ZM2(px)=sqrt(coefout(3).^2+coefout(7).^2);
-ZM4(px)=sqrt(coefout(4).^2+coefout(8).^2);
+ZM2(i,px)=sqrt(coefout(3).^2+coefout(7).^2);
+ZM4(i,px)=sqrt(coefout(4).^2+coefout(8).^2);
 ZM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
-phaseZM2(px)=atan(coefout(3)/coefout(7));
+phaseZM2(i,px)=atan(coefout(3)/coefout(7));
 phaseZM4(px)=atan(coefout(4)/coefout(8));
 phaseZM6(px)=atan(coefout(5)/coefout(9));
 coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),U(px,end-Nsteps:end),@harmfit,coefin);
 U0(px)=coefout(1);
-UM2(px)=sqrt(coefout(3).^2+coefout(7).^2);
+UM2(i,px)=sqrt(coefout(3).^2+coefout(7).^2);
 UM4(px)=sqrt(coefout(4).^2+coefout(8).^2);
 UM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseUM2(px)=atan(coefout(3)/coefout(7));
@@ -152,32 +152,48 @@ display(LkM2);
 %Looking at the size of kL, we predict that the pumping model is
 %representative for M2 in this example, except for when the water height
 %<=2m. 
+end
 
 subplot(3,2,1)
 plot(x(2:end),ZM2);
-hold on
+title('M2: elevation');
+xlabel('L_{Basin} [m]');
+ylabel('SSE [m]');
+legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+grid on;
+
 subplot(3,2,3)
 plot(x(2:end),UM2);
-hold on
+title('M2: flow velocity');
+xlabel('L_{Basin} [m]');
+ylabel('U [m/s]');
+legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+
+grid on;
+
 subplot(3,2,5)
 plot(x(2:end),phaseZM2);
-hold on
-legend('H=2','H=3','H=4','H=5','H=6','H=7','H=8','H=9','H=10');
-subplot(3,2,2)
-plot(x(2:end),ZM4);
-%I can't manage to create a subplot for M4 such that it only plots for
-%H=2,10m. 
-if i==1
-    hold on
-end
-if i>1
-    hold off
-end
-end
-legend('H=2','H=10');
-hold off
+title('M2: phase');
+xlabel('L_{Basin} [m]');
+ylabel('\Phi [rad]');
+legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+grid on;
 
-%Explain the dependence of tidal amplitude on depth. 
+subplot(3,2,2)
+yyaxis left;
+plot(x(2:end),ZM4(1,:));
+ylabel('SSE [m]');
+hold on
+yyaxis right;
+plot(x(2:end),ZM4(end,:));
+hold off
+title('M4: elevation');
+xlabel('L_{Basin} [m]');
+ylabel('SSE [m]');
+legend('H = 2m','H = 10m');
+grid on;
+
+%A1. Explain the dependence of tidal amplitude on depth. 
 %M2 tidal amplitude increases landward for heights above 3m. This is due to
 %the negative correlation between friction and tidal amplitude. The
 %shallower the water, the higher the levels of friction and so the more
@@ -186,7 +202,7 @@ hold off
 %growth, this is due to the decreased amount of interactions amongst M2
 %tides due to the decreased friction. 
 
-%For which depths are you close to the pumping model solution? 
+%A1. For which depths are you close to the pumping model solution? 
 %Also remember that for pumping model the phase of M2 water 
 %level should be uniform in the basin.
 
@@ -195,8 +211,3 @@ hold off
 %amplitude and tidal speed phases. From equation (3.14) it follows that in 
 %short estuaries, the linearized component of tidal velocity is 90° out of 
 %phase with tidal elevation. This means that max U is when Z minimum.
-
-   
-
-
-
