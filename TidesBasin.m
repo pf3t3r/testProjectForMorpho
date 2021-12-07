@@ -127,22 +127,22 @@ Nsteps=floor(Td1/deltaT);
 for px=1:Nx-1
 coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),Z(px,end-Nsteps:end),@harmfit,coefin);
-Z0(px)=coefout(1);
+Z0(i,px)=coefout(1);
 ZM2(i,px)=sqrt(coefout(3).^2+coefout(7).^2);
 ZM4(i,px)=sqrt(coefout(4).^2+coefout(8).^2);
-ZM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
+ZM6(i,px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseZM2(i,px)=atan(coefout(3)/coefout(7));
-phaseZM4(px)=atan(coefout(4)/coefout(8));
-phaseZM6(px)=atan(coefout(5)/coefout(9));
+phaseZM4(i,px)=atan(coefout(4)/coefout(8));
+phaseZM6(i,px)=atan(coefout(5)/coefout(9));
 coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),U(px,end-Nsteps:end),@harmfit,coefin);
 U0(px)=coefout(1);
 UM2(i,px)=sqrt(coefout(3).^2+coefout(7).^2);
-UM4(px)=sqrt(coefout(4).^2+coefout(8).^2);
-UM6(px)=sqrt(coefout(5).^2+coefout(9).^2);
-phaseUM2(px)=atan(coefout(3)/coefout(7));
-phaseUM4(px)=atan(coefout(4)/coefout(8));
-phaseUM6(px)=atan(coefout(5)/coefout(9));
+UM4(i,px)=sqrt(coefout(4).^2+coefout(8).^2);
+UM6(i,px)=sqrt(coefout(5).^2+coefout(9).^2);
+phaseUM2(i,px)=atan(coefout(3)/coefout(7));
+phaseUM4(i,px)=atan(coefout(4)/coefout(8));
+phaseUM6(i,px)=atan(coefout(5)/coefout(9));
 end
 %We analyse the size of kL - lenght of estuary*length scale over which
 %tidal phase varies. 
@@ -153,6 +153,7 @@ display(LkM2);
 %<=2m. 
 end
 
+sgtitle('Part A');
 subplot(3,2,1)
 plot(x(2:end),ZM2);
 title('M2: Along-basin Change in SSE');
@@ -194,6 +195,18 @@ ylabel('SSE [m]');
 legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
 grid on;
 
+subplot(3,2,4)
+plot(x(2:end),UM2(1,:));
+hold on
+plot(x(2:end),UM4(1,:));
+hold off
+title('Flow Velocities for M2 and M4');
+xlabel('L_{Basin} [m]');
+ylabel('U [m/s]');
+legend('U_{M2}','U_{M4}')
+grid on;
+
+
 %A1. Explain the dependence of tidal amplitude on depth. 
 %M2 tidal amplitude increases landward for heights above 3m. This is due to
 %the negative correlation between friction and tidal amplitude. The
@@ -228,3 +241,13 @@ grid on;
 % shallow basin. For instance, in the case of a shallow basin (H = 2 m),
 % the M4 water level increases from 0 m to 2 m, while in the case of a
 % deep basin, the M4 water level increases only barely, from 0 m to 3 mm.
+
+% A3. For the shallowest case: Determine the tidally averaged flow 
+% velocities, and the amplitude of the M2 and the M4 tidal currents in 
+% the basin and determine the relative phase difference between the M2
+% and M4 tidal currents. 
+
+% Average flow velocities are maximum at the seaward end of the basin.
+% Velocity declines continuously for M2, but M4 begins to increase for 
+% the first part of the basin.
+% Is this correct? I don't think the M4 should have a velocity at zero (?)
