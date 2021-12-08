@@ -12,14 +12,14 @@ clc;
 %**************************************************************************
 
 deltaT=45;               % time step in seconds. Choose appropriate time step yourself based on Courant number. 
-deltaX=500;              % spatial step in meters
-Lbasin=2e4;              % Length of the basin or estuary in meters
+deltaX=1000;             % spatial step in meters
+Lbasin=linspace(1e4,15e4,8); % Length of the basin or estuary in meters
 Lb=4e4;                  % e-folding length scale for width.
 B0=1e3;                  % Width of the basin in meters at seaward side.
-H0=linspace(2,10,9);     % Depth of basin.
+H0=10;                   % Depth of basin.
 M2amp=1;                 % Amplitude of M2 tide at seaward side.
 discharge=0;             % Constant river discharge at landward boundary. 
-Cd=2.5e-3;               % Drag coefficient
+Cd=0.2e-3;               % Drag coefficient
 
 %**************************************************************************
 %**************************************************************************
@@ -42,16 +42,16 @@ wn(2)=2*pi/Tm2;
 wn(3)=2*wn(2);
 wn(4)=3*wn(2);
 
-x=0:deltaX:Lbasin;
-Nx=length(x);
-%Length of still water depth vector 
-NH=length(H0);
+%Length of basin lenght variation 
+NH=length(Lbasin);
 
 f1=figure; 
 for i=1:NH
+x=0:deltaX:Lbasin(i);
+Nx=length(x);
 %B(1:Nx)=B0*exp(-x/Lb);
 B(1:Nx)=B0;                % when basin width has to be constant.
-H(1:Nx)=H0(i);
+H(1:Nx)=H0;
 Z=zeros(Nx-1,Nt);           % Z points shifted half a grid point to the right with respect to Q points. we start with Q point, therefore 1 Z point less than Q points.      
 Q=zeros(Nx,Nt);
 A=(B.*H)'*ones(1,Nt);       % A at Q points
@@ -146,65 +146,87 @@ phaseUM6(i,px)=atan(coefout(5)/coefout(9));
 end
 %We analyse the size of kL - lenght of estuary*length scale over which
 %tidal phase varies. 
-LkM2=(phaseUM2(1)+phaseUM2(Nx-1));
-display(LkM2);
+LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Looking at the size of kL, we predict that the pumping model is
 %representative for M2 in this example, except for when the water height
 %<=2m. 
-end
 
-sgtitle('Part A');
 subplot(3,2,1)
 plot(x(2:end),ZM2);
 title('M2: Along-basin Change in SSE');
 xlabel('L_{Basin} [m]');
 ylabel('SSE [m]');
-legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+legend('L = 10km','L = 30km','L = 50km','L = 70km','L = 90km','L = 110km','L = 130km','L = 150km');
 grid on;
+end
 
-subplot(3,2,3)
-plot(x(2:end),UM2);
-title('M2: Along-basin Change in U');
-xlabel('L_{Basin} [m]');
-ylabel('U [m/s]');
-legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+% %sgtitle('Part A');
+% subplot(3,2,1)
+% plot(x(2:end),ZM2);
+% title('M2: Along-basin Change in SSE');
+% xlabel('L_{Basin} [m]');
+% ylabel('SSE [m]');
+% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+% grid on;
 
-grid on;
+% subplot(3,2,3)
+% plot(x(2:end),UM2);
+% title('M2: Along-basin Change in U');
+% xlabel('L_{Basin} [m]');
+% ylabel('U [m/s]');
+% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+% 
+% grid on;
+% 
+% subplot(3,2,2)
+% plot(x(2:end),phaseUM2-phaseZM2);
+% title('M2: Phase difference UM2 - ZM2');
+% xlabel('L_{Basin} [m]');
+% ylabel('\Phi [rad]');
+% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+% grid on;
+% 
+% subplot(3,2,4)
+% plot(x(2:end),phaseZM2);
+% title('M2: Along-basin Change in Phase');
+% xlabel('L_{Basin} [m]');
+% ylabel('\Phi [rad]');
+% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
+% grid on;
+% 
+% subplot(3,2,6)
+% scatter(H0,LkM2);
+% title('M2: Along-basin Change in Phase');
+% xlabel('Lk');
+% ylabel('Average water depth');
+% grid on;
 
-subplot(3,2,5)
-plot(x(2:end),phaseZM2);
-title('M2: Along-basin Change in Phase');
-xlabel('L_{Basin} [m]');
-ylabel('\Phi [rad]');
-legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
-grid on;
-
-subplot(3,2,2)
-yyaxis left;
-plot(x(2:end),ZM4(1,:));
-hold on
-plot(x(2:end),ZM4(end,:));
-ylabel('SSE [m]');
-yyaxis right;
-plot(x(2:end),ZM2(1,:));
-plot(x(2:end),ZM2(end,:));
-hold off
-title('M4 and M2: Deepest and Shallowest Case');
-xlabel('L_{Basin} [m]');
-ylabel('SSE [m]');
-legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
-grid on;
-
-subplot(3,2,4)
-plot(x(2:end),UM2(1,:));
-hold on
-plot(x(2:end),UM4(1,:));
-hold off
-title('Flow Velocities for M2 and M4');
-xlabel('L_{Basin} [m]');
-ylabel('U [m/s]');
-legend('U_{M2}','U_{M4}')
-grid on;
+% subplot(3,2,2)
+% yyaxis left;
+% plot(x(2:end),ZM4(1,:));
+% hold on
+% plot(x(2:end),ZM4(end,:));
+% ylabel('SSE [m]');
+% yyaxis right;
+% plot(x(2:end),ZM2(1,:));
+% plot(x(2:end),ZM2(end,:));
+% hold off
+% title('M4 and M2: Deepest and Shallowest Case');
+% xlabel('L_{Basin} [m]');
+% ylabel('SSE [m]');
+% legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
+% grid on;
+% 
+% subplot(3,2,4)
+% plot(x(2:end),UM2(1,:));
+% hold on
+% plot(x(2:end),UM4(1,:));
+% hold off
+% title('Flow Velocities for M2 and M4');
+% xlabel('L_{Basin} [m]');
+% ylabel('U [m/s]');
+% legend('U_{M2}','U_{M4}')
+% grid on;
 
 
 %A1. Explain the dependence of tidal amplitude on depth. 
