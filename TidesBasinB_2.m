@@ -1,8 +1,4 @@
-%% TODO. Replace zero values with NaNs such that they are not plotted.
-
-%%
-clear all; close all;
-clc;
+clear; close all; clc;
 
 % Solving the shallow water equations in shallow basins and estuaries.
 % Based on Friedrichs (2011), Chapter 3 in Contemporary Issues in Estuarine
@@ -16,14 +12,13 @@ clc;
 
 deltaT=45;               % time step in seconds. Choose appropriate time step yourself based on Courant number. 
 deltaX=1000;             % spatial step in meters
-Lbasin=linspace(1e4,15e4,8); % Length of the basin or estuary in meters
-%Lbasin=[103000 104000];
+Lbasin=11e4;             % Length of the basin or estuary in meters
 Lb=4e4;                  % e-folding length scale for width.
 B0=1e3;                  % Width of the basin in meters at seaward side.
 H0=10;                   % Depth of basin.
 M2amp=1;                 % Amplitude of M2 tide at seaward side.
 discharge=0;             % Constant river discharge at landward boundary. 
-Cd=0.2e-3;               % Drag coefficient
+Cd=1e-3*[0.2, 0.5, 1, 2, 5];               % Drag coefficients
 
 %**************************************************************************
 %**************************************************************************
@@ -43,11 +38,11 @@ wn(2)=2*pi/Tm2;
 wn(3)=2*wn(2);
 wn(4)=3*wn(2);
 
-% No. of possible basin lengths 
-N_Lb=length(Lbasin);
+% No. of different possible drag coefficients 
+N_Cd=length(Cd);
 
-for i=1:N_Lb
-x=0:deltaX:Lbasin(i);
+for i=1:N_Cd
+x=0:deltaX:Lbasin;
 Nx=length(x);
 %B(1:Nx)=B0*exp(-x/Lb);
 B(1:Nx)=B0;                % when basin width has to be constant.
@@ -66,12 +61,12 @@ Q(Nx,:)=-discharge;                      % river discharge; most often river dis
 
 courant=sqrt(9.8*max(H0))*deltaT/deltaX;
 
-%Courant criteria
+% Courant criteria
 if courant<1
 end 
 
 if courant>=1
-    display('Courant criteria not met');
+    disp('Courant criteria not met');
     break; 
 end 
 
@@ -99,10 +94,10 @@ for pt=1:Nt-1
     for px=2:Nx-1
         Q(px,pt+1)=Q(px,pt) ...                                            % Inertia.
             -9.81*A(px,pt+1)*(deltaT/deltaX)*(Z(px,pt+1)-Z(px-1,pt+1)) ...  % Pressure gradient
-            -Cd*deltaT*abs(Q(px,pt))*Q(px,pt)*P(px,pt)/(A(px,pt)*A(px,pt)); % Friction
+            -Cd(i)*deltaT*abs(Q(px,pt))*Q(px,pt)*P(px,pt)/(A(px,pt)*A(px,pt)); % Friction
         Inertia(px,pt+1)=(Q(px,pt+1)-Q(px,pt))/deltaT;
         PG(px,pt+1)=-9.81*A(px,pt+1)*(1/deltaX)*(Z(px,pt+1)-Z(px-1,pt+1));
-        Fric(px,pt+1)=-Cd*abs(Q(px,pt))*Q(px,pt)*P(px,pt)/(A(px,pt)*A(px,pt));
+        Fric(px,pt+1)=-Cd(i)*abs(Q(px,pt))*Q(px,pt)*P(px,pt)/(A(px,pt)*A(px,pt));
     end
     Q(1,pt+1)=Q(2,pt+1)+B(1)*deltaX*(Z(1,pt+1)-Z(1,pt))/deltaT;
 end
@@ -143,9 +138,8 @@ UM6(i,px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseUM2(i,px)=atan(coefout(3)/coefout(7));
 phaseUM4(i,px)=atan(coefout(4)/coefout(8));
 phaseUM6(i,px)=atan(coefout(5)/coefout(9));
-ZM2(ZM2 == 0) = NaN;
 end
-%We analyse the size of kL - length of estuary*length scale over which
+%We analyse the size of kL - lenght of estuary*length scale over which
 %tidal phase varies. 
 LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Looking at the size of kL, we predict that the pumping model is
@@ -153,35 +147,24 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %<=2m. 
 end
 
+% Make a plot of how SSE varies across the length of the basin when the
+% using different values for the drag coefficient Cd.
 
-display(LkM2);
-Matlab2_B1=figure; 
+figure
 plot(x(2:end),ZM2);
-title('SSE vs. Basin Length (M2)');
+title('M2: Dependency of SSE on c_d (L_{Basin} = 110 km)');
 xlabel('L_{Basin} [m]');
 ylabel('SSE [m]');
-legend('L = 10km','L = 30km','L = 50km','L = 70km','L = 90km','L = 110km','L = 130km','L = 150km');
+legend('c_d = 0.0002','c_d = 0.0005','c_d = 0.0010','c_d = 0.0020','c_d = 0.0050');
 grid on;
-saveas(gcf,'Matlab2_B1.png');
+savefig('b2');
 
-%B1
-%Study the sensitivity of the amplitude of the M2 water levels as
-%function of space for the different lengths of the basin. Explain your results. 
+% B2. What happens to the wavelength of the tide due to friction?
+% -> Higher friction leads to shorter wavelengths. 
 
-%We observe from the figure above that the amplitude of the M2 water level
-%grows inland for every basin length and depth H0=10. This is consistent
-%with what we argued in Part A. Furthermore, amplitude across the basin  is
-%maximised for sizes of around 110 meters. 
+% B2. In case of moderate friction, is the M2 tide resonant for larger basin
+% lengths or smaller basin lengths compared to the case of negligible friction?
+% ->
 
-%In which case is the basin resonant? Compare to what you expect theoretically.
-%Theoretically, we expect resonance when the "quarter wave length" criteria
-%is required, meaning that L=lambda/4. When the basin is that long,
-%amplitude and speed grow infinitely if friction is ignored as the standing
-%waves will "pile up" on top of each other overt time. Because the pumping
-%approximation is met (see Lk), meaning that the amplitude phase of the
-%wave is approximately constant across the basin, we know that the
-%wavelength of M2 will also be constant for different lengths of the
-%basin. Therefore, we can find the L such that L=lambda/4 graphically. We
-%note that this must be somewhere around 110km, and more specifically it
-%will be around 104km long. 
-
+% Give two reasons why the amplitude of the M2 water levels at the end of
+% the basin is smaller for increasing values of Cd.
