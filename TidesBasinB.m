@@ -17,6 +17,7 @@ clc;
 deltaT=45;               % time step in seconds. Choose appropriate time step yourself based on Courant number. 
 deltaX=1000;             % spatial step in meters
 Lbasin=linspace(1e4,15e4,8); % Length of the basin or estuary in meters
+%Lbasin=[103000 104000];
 Lb=4e4;                  % e-folding length scale for width.
 B0=1e3;                  % Width of the basin in meters at seaward side.
 H0=10;                   % Depth of basin.
@@ -142,34 +143,45 @@ UM6(i,px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseUM2(i,px)=atan(coefout(3)/coefout(7));
 phaseUM4(i,px)=atan(coefout(4)/coefout(8));
 phaseUM6(i,px)=atan(coefout(5)/coefout(9));
+ZM2(ZM2 == 0) = NaN;
 end
-%We analyse the size of kL - lenght of estuary*length scale over which
+%We analyse the size of kL - length of estuary*length scale over which
 %tidal phase varies. 
 LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Looking at the size of kL, we predict that the pumping model is
 %representative for M2 in this example, except for when the water height
 %<=2m. 
-
-% subplot(3,2,1)
-% plot(x(2:end),ZM2);
-% title('M2: Along-basin Change in SSE');
-% xlabel('L_{Basin} [m]');
-% ylabel('SSE [m]');
-% legend('L = 10km','L = 30km','L = 50km','L = 70km','L = 90km','L = 110km','L = 130km','L = 150km');
-% grid on;
 end
 
-figure
+
+display(LkM2);
+Matlab2_B1=figure; 
 plot(x(2:end),ZM2);
 title('SSE vs. Basin Length (M2)');
 xlabel('L_{Basin} [m]');
 ylabel('SSE [m]');
 legend('L = 10km','L = 30km','L = 50km','L = 70km','L = 90km','L = 110km','L = 130km','L = 150km');
 grid on;
-savefig('b1');
+saveas(gcf,'Matlab2_B1.png');
 
-% B1. Study the sensitivity of the amplitude of the M2 water levels as 
-% function of space for the different lengths of the basin. Explain your
-% results. In which case is the basin resonant? Compare to what you
-% expect theoretically.
-% -> 
+%B1
+%Study the sensitivity of the amplitude of the M2 water levels as
+%function of space for the different lengths of the basin. Explain your results. 
+
+%We observe from the figure above that the amplitude of the M2 water level
+%grows inland for every basin length and depth H0=10. This is consistent
+%with what we argued in Part A. Furthermore, amplitude across the basin  is
+%maximised for sizes of around 110 meters. 
+
+%In which case is the basin resonant? Compare to what you expect theoretically.
+%Theoretically, we expect resonance when the "quarter wave length" criteria
+%is required, meaning that L=lambda/4. When the basin is that long,
+%amplitude and speed grow infinitely if friction is ignored as the standing
+%waves will "pile up" on top of each other overt time. Because the pumping
+%approximation is met (see Lk), meaning that the amplitude phase of the
+%wave is approximately constant across the basin, we know that the
+%wavelength of M2 will also be constant for different lengths of the
+%basin. Therefore, we can find the L such that L=lambda/4 graphically. We
+%note that this must be somewhere around 110km, and more specifically it
+%will be around 104km long. 
+
