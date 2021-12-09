@@ -151,10 +151,16 @@ end
 % using different values for the drag coefficient Cd.
 
 figure
+yyaxis left;
 plot(x(2:end),ZM2);
+ylabel('SSE [m]');
+hold on
+yyaxis right;
+plot(x(2:end),ZM4);
+hold off
 title('M2: Dependency of SSE on c_d (L_{Basin} = 110 km)');
 xlabel('L_{Basin} [m]');
-ylabel('SSE [m]');
+ylabel('U [m/s]');
 legend('c_d = 0.0002','c_d = 0.0005','c_d = 0.0010','c_d = 0.0020','c_d = 0.0050');
 grid on;
 savefig('b2');
@@ -164,7 +170,16 @@ savefig('b2');
 
 % B2. In case of moderate friction, is the M2 tide resonant for larger basin
 % lengths or smaller basin lengths compared to the case of negligible friction?
-% ->
+% -> Let's assume that moderate friction and negligible friction are
+% represented by the cases where c_d = 0.0010 and c_d = 0.0002
+% respectively. 
+% For moderate friction, it appears as though the M2 tide is resonant for
+% shorter basin lengths. Specifically, in the case of negligible friction,
+% resonance is reached after approx. 104 km. Then, in the case of moderate
+% friction, resonance is reached after approx. 90 km.
 
 % Give two reasons why the amplitude of the M2 water levels at the end of
 % the basin is smaller for increasing values of Cd.
+% -> 1. Higher friction damps the signal.
+% 2. Much of the energy of M2 has been transferred to M4. [true, but not
+% complete]
