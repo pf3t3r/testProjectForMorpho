@@ -46,8 +46,7 @@ x=0:deltaX:Lbasin;
 Nx=length(x);
 %Length of still water depth vector 
 NH=length(H0);
-
-f1=figure; 
+ 
 for i=1:NH
 %B(1:Nx)=B0*exp(-x/Lb);
 B(1:Nx)=B0;                % when basin width has to be constant.
@@ -152,8 +151,9 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %<=2m. 
 end
 
+Matlab2_A1=figure
 %sgtitle('Part A');
-subplot(3,2,1)
+subplot(2,1,1)
 plot(x(2:end),ZM2);
 title('M2: Along-basin Change in SSE');
 xlabel('L_{Basin} [m]');
@@ -161,16 +161,18 @@ ylabel('SSE [m]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
 grid on;
 
-subplot(3,2,3)
+subplot(2,1,2)
 plot(x(2:end),UM2);
 title('M2: Along-basin Change in U');
 xlabel('L_{Basin} [m]');
 ylabel('U [m/s]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
-
 grid on;
+%savefig(Matlab2_A1);
+saveas(gcf,'Matlab2_A1.png');
 
-subplot(3,2,2)
+Matlab2_A2=figure
+subplot(3,1,1)
 plot(x(2:end),phaseUM2-phaseZM2);
 title('M2: Phase difference UM2 - ZM2');
 xlabel('L_{Basin} [m]');
@@ -178,7 +180,7 @@ ylabel('\Phi [rad]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
 grid on;
 
-subplot(3,2,4)
+subplot(3,1,2)
 plot(x(2:end),phaseZM2);
 title('M2: Along-basin Change in Phase');
 xlabel('L_{Basin} [m]');
@@ -186,40 +188,44 @@ ylabel('\Phi [rad]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
 grid on;
 
-subplot(3,2,6)
+subplot(3,1,3)
 scatter(H0,LkM2);
 title('Pumping model criterion');
 xlabel('H0');
 ylabel('Lk');
 grid on;
+%savefig(Matlab2_A2);
+saveas(gcf,'Matlab2_A2.png');
 
-% subplot(3,2,2)
-% yyaxis left;
-% plot(x(2:end),ZM4(1,:));
-% hold on
-% plot(x(2:end),ZM4(end,:));
-% ylabel('SSE [m]');
-% yyaxis right;
-% plot(x(2:end),ZM2(1,:));
-% plot(x(2:end),ZM2(end,:));
-% hold off
-% title('M4 and M2: Deepest and Shallowest Case');
-% xlabel('L_{Basin} [m]');
-% ylabel('SSE [m]');
-% legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
-% grid on;
-% 
-% subplot(3,2,4)
-% plot(x(2:end),UM2(1,:));
-% hold on
-% plot(x(2:end),UM4(1,:));
-% hold off
-% title('Flow Velocities for M2 and M4');
-% xlabel('L_{Basin} [m]');
-% ylabel('U [m/s]');
-% legend('U_{M2}','U_{M4}')
-% grid on;
+Matlab2_A3=figure
+subplot(2,1,1)
+yyaxis left;
+plot(x(2:end),ZM4(1,:));
+hold on
+plot(x(2:end),ZM4(end,:));
+ylabel('SSE [m]');
+yyaxis right;
+plot(x(2:end),ZM2(1,:));
+plot(x(2:end),ZM2(end,:));
+hold off
+title('M4 and M2: Deepest and Shallowest Case');
+xlabel('L_{Basin} [m]');
+ylabel('SSE [m]');
+legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
+grid on;
 
+subplot(2,1,2)
+plot(x(2:end),UM2(1,:));
+hold on
+plot(x(2:end),UM4(1,:));
+hold off
+title('Flow Velocities for M2 and M4');
+xlabel('L_{Basin} [m]');
+ylabel('U [m/s]');
+legend('U_{M2}','U_{M4}')
+grid on;
+%savefig(Matlab2_A3);
+saveas(gcf,'Matlab2_A3.png');
 
 %A1. Explain the dependence of tidal amplitude on depth. 
 %M2 tidal amplitude increases landward for heights above 3m. This is due to
@@ -265,3 +271,7 @@ grid on;
 % Velocity declines continuously for M2, but M4 begins to increase for 
 % the first part of the basin.
 % Is this correct? I don't think the M4 should have a velocity at zero (?)
+
+
+%Tidal amplification! And standing wave -> 90 degrees phase
+%difference between flow velocities and water levels.

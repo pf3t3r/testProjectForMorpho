@@ -14,6 +14,7 @@ clc;
 deltaT=45;               % time step in seconds. Choose appropriate time step yourself based on Courant number. 
 deltaX=1000;             % spatial step in meters
 Lbasin=linspace(1e4,15e4,8); % Length of the basin or estuary in meters
+%Lbasin=[103000 104000];
 Lb=4e4;                  % e-folding length scale for width.
 B0=1e3;                  % Width of the basin in meters at seaward side.
 H0=10;                   % Depth of basin.
@@ -44,8 +45,7 @@ wn(4)=3*wn(2);
 
 %Length of basin lenght variation 
 NH=length(Lbasin);
-
-f1=figure; 
+ 
 for i=1:NH
 x=0:deltaX:Lbasin(i);
 Nx=length(x);
@@ -143,133 +143,44 @@ UM6(i,px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseUM2(i,px)=atan(coefout(3)/coefout(7));
 phaseUM4(i,px)=atan(coefout(4)/coefout(8));
 phaseUM6(i,px)=atan(coefout(5)/coefout(9));
+ZM2(ZM2 == 0) = NaN;
 end
-%We analyse the size of kL - lenght of estuary*length scale over which
+%We analyse the size of kL - length of estuary*length scale over which
 %tidal phase varies. 
 LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Looking at the size of kL, we predict that the pumping model is
 %representative for M2 in this example, except for when the water height
 %<=2m. 
+end
 
-subplot(3,2,1)
+display(LkM2);
+Matlab2_B1=figure; 
+%subplot(3,2,1)
 plot(x(2:end),ZM2);
 title('M2: Along-basin Change in SSE');
 xlabel('L_{Basin} [m]');
 ylabel('SSE [m]');
 legend('L = 10km','L = 30km','L = 50km','L = 70km','L = 90km','L = 110km','L = 130km','L = 150km');
 grid on;
-end
+saveas(gcf,'Matlab2_B1.png');
 
-% %sgtitle('Part A');
-% subplot(3,2,1)
-% plot(x(2:end),ZM2);
-% title('M2: Along-basin Change in SSE');
-% xlabel('L_{Basin} [m]');
-% ylabel('SSE [m]');
-% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
-% grid on;
+%B1
+%Study the sensitivity of the amplitude of the M2 water levels as
+%function of space for the different lengths of the basin. Explain your results. 
 
-% subplot(3,2,3)
-% plot(x(2:end),UM2);
-% title('M2: Along-basin Change in U');
-% xlabel('L_{Basin} [m]');
-% ylabel('U [m/s]');
-% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
-% 
-% grid on;
-% 
-% subplot(3,2,2)
-% plot(x(2:end),phaseUM2-phaseZM2);
-% title('M2: Phase difference UM2 - ZM2');
-% xlabel('L_{Basin} [m]');
-% ylabel('\Phi [rad]');
-% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
-% grid on;
-% 
-% subplot(3,2,4)
-% plot(x(2:end),phaseZM2);
-% title('M2: Along-basin Change in Phase');
-% xlabel('L_{Basin} [m]');
-% ylabel('\Phi [rad]');
-% legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
-% grid on;
-% 
-% subplot(3,2,6)
-% scatter(H0,LkM2);
-% title('M2: Along-basin Change in Phase');
-% xlabel('Lk');
-% ylabel('Average water depth');
-% grid on;
+%We observe from the figure above that the amplitude of the M2 water level
+%grows inland for every basin length and depth H0=10. This is consistent
+%with what we argued in Part A. Furthermore, amplitude across the basin  is
+%maximised for sizes of around 110 meters. 
 
-% subplot(3,2,2)
-% yyaxis left;
-% plot(x(2:end),ZM4(1,:));
-% hold on
-% plot(x(2:end),ZM4(end,:));
-% ylabel('SSE [m]');
-% yyaxis right;
-% plot(x(2:end),ZM2(1,:));
-% plot(x(2:end),ZM2(end,:));
-% hold off
-% title('M4 and M2: Deepest and Shallowest Case');
-% xlabel('L_{Basin} [m]');
-% ylabel('SSE [m]');
-% legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
-% grid on;
-% 
-% subplot(3,2,4)
-% plot(x(2:end),UM2(1,:));
-% hold on
-% plot(x(2:end),UM4(1,:));
-% hold off
-% title('Flow Velocities for M2 and M4');
-% xlabel('L_{Basin} [m]');
-% ylabel('U [m/s]');
-% legend('U_{M2}','U_{M4}')
-% grid on;
-
-
-%A1. Explain the dependence of tidal amplitude on depth. 
-%M2 tidal amplitude increases landward for heights above 3m. This is due to
-%the negative correlation between friction and tidal amplitude. The
-%shallower the water, the higher the levels of friction and so the more
-%dampened is M2. This is opposite for M4 and M6 which are max in shallow
-%waters. As can be seen in subplot(3,2,5), M4 diminishes in size as H
-%growth, this is due to the decreased amount of interactions amongst M2
-%tides due to the decreased friction. 
-
-%A1. For which depths are you close to the pumping model solution? 
-%Also remember that for pumping model the phase of M2 water 
-%level should be uniform in the basin.
-
-%As computed above, this linearisation is only possible for water heights 
-%over 2m. This can also be observed in the graph above by comparing the
-%amplitude and tidal speed phases. From equation (3.14) it follows that in 
-%short estuaries, the linearized component of tidal velocity is 90° out of 
-%phase with tidal elevation. This means that max U is when Z minimum.
-
-% A2. Determine the deformation of the tide for the shallowest case (2 m)
-% and deepest case (10 m) by determining the amplitude of the M4 water
-% level as function of position in the basin. Explain the differences
-% between a deep and shallow basin.
-
-% The tide deforms significantly in the shallowest case (2m). Between 
-% 0 and 800m, the M2 SSE declines in height by about 20%, while the 
-% M4 SSE increases from zero to a height of 0.1 m. It continues thereafter,
-% which seems to indicate that there is a phase lag between the loss in
-% amplitude of M2 and the corresponding amplitude gain by M4.
-% The M4 water level increases closer to the landward end of the basin in 
-% both cases, though the amplitudes are much higher in the case of a
-% shallow basin. For instance, in the case of a shallow basin (H = 2 m),
-% the M4 water level increases from 0 m to 2 m, while in the case of a
-% deep basin, the M4 water level increases only barely, from 0 m to 3 mm.
-
-% A3. For the shallowest case: Determine the tidally averaged flow 
-% velocities, and the amplitude of the M2 and the M4 tidal currents in 
-% the basin and determine the relative phase difference between the M2
-% and M4 tidal currents. 
-
-% Average flow velocities are maximum at the seaward end of the basin.
-% Velocity declines continuously for M2, but M4 begins to increase for 
-% the first part of the basin.
-% Is this correct? I don't think the M4 should have a velocity at zero (?)
+%In which case is the basin resonant? Compare to what you expect theoretically.
+%Theoretically, we expect resonance when the "quarter wave length" criteria
+%is required, meaning that L=lambda/4. When the basin is that long,
+%amplitude and speed grow infinitely if friction is ignored as the standing
+%waves will "pile up" on top of each other overt time. Because the pumping
+%approximation is met (see Lk), meaning that the amplitude phase of the
+%wave is approximately constant across the basin, we know that the
+%wavelength of M2 will also be constant for different lengths of the
+%basin. Therefore, we can find the L such that L=lambda/4 graphically. We
+%note that this must be somewhere around 110km, and more specifically it
+%will be around 104km long. 
