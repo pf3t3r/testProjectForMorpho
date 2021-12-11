@@ -1,23 +1,6 @@
-clear; close all; clc;
-
-% Solution to Part D of Project 2.
-% In order to answer this question we must determine two parameters based
-% on observations of the Gironde Estuary:
-% i. B_0. This is the width at the entrance of the estuary (defined as a
-% relatively narrow constriction point before reaching the open sea).
-% ii. Briver. This is the width of the river where the estuary stops
-% narrowing. It is supposed to represent the location where the width is
-% determined by the river and not by the tides. Unfortunately in our case
-% it seems like the estuary splits in two before this happens. 
-
-% The yearly averaged semi-diurnal tides are approximately 14x the value of
-% the diurnal tides. Therefore, we can use the shortcut mentioned in the
-% project description, i.e. we use only semi-diurnal tides in this
-% analysis.
-
-% Analysis breaks when H0 > 11.1 m.
-% How can we incorporate the bed levels??
-
+%%
+clear all; close all;
+clc;
 % Solving the shallow water equations in shallow basins and estuaries.
 % Based on Friedrichs (2011), Chapter 3 in Contemporary Issues in Estuarine
 % Physics.
@@ -28,60 +11,46 @@ clear; close all; clc;
 %**************************************************************************
 %**************************************************************************
 
-deltaT=45;               % Time step in seconds. Chosen such that the
-                         % the Courant number <= 0.9. 
-                         % Warning: If deltaT is too high (but still 
-                         % satisfies Courant), the harmfit function may
-                         % break.
-deltaX=1000;             % spatial step in meters.
-% Lbasin=11e4;           % Length of the basin or estuary in meters
-B0=5.8e3;                % Width of the basin in meters at seaward side.
-                         % This is based on Google Earth observations of
-                         % the mouth of the Gironde.
-Briver=5e3;              % Width of the river where estuary stops narrowing
-xr = 50e3;               % Point in river at which estuary stops narrowing
-                         % kind of arbitrarily set to the location of Ile 
-                         % de Patiras.
-Lb = -xr/log(Briver/B0); % e-folding length scale    
-M2amp=1;                 % Amplitude of M2 tide at seaward side <=> This is 
-                         % the water level at the mouth.
+deltaT=45;               % time step in seconds. Choose appropriate time step yourself based on Courant number. 
+deltaX=1000;             % spatial step in meters
+Lbasin=[0.4e5 1.1e5]; % Length of the basin or estuary in meters
+Lb=4e4;                  % e-folding length scale for width.
+B0=1e3;                  % Width of the basin in meters at seaward side.
+H0=5;                   % Depth of basin.
+M2amp=1;                 % Amplitude of M2 tide at seaward side.
 discharge=0;             % Constant river discharge at landward boundary. 
-                         % Prescribed as zero for simplicity in the project
-                         % description.
-Cd=2.5e-3;               % Drag coefficient
-x=0:deltaX:1.5*xr;       % With deltax = 1e3, we have 80 grid points.
-H0 = 1:1:6;        % Define the bed level and so the depth of the basin. 
-% H0 = 2.0:0.1:2.4;
-NH0 = length(H0);
+Cd=2e-3;               % Drag coefficient
+
 %**************************************************************************
 %**************************************************************************
 %*                 End of parameter setting
 %**************************************************************************
 %**************************************************************************
 
-% Note that D1 tide is not used in this analysis.
-
-Td1=24*3600+50*60;       % M1 tidal period [s]
-Tm2=12*3600+25*60;       % M2 tidal period [s]
-time=0:deltaT:15*Tm2;    % Time [s]
-Nt=length(time);         % Length of time array
+Td1=24*3600+50*60;
+Tm2=12*3600+25*60;       % M2 tidal period in seconds
+time=0:deltaT:15*Tm2;    % time in seconds
+Nt=length(time);
 
 % Define frequencies to be analysed.
 global wn
-wn(1)=2*pi/Td1;         % M1
-wn(2)=2*pi/Tm2;         % M2
-wn(3)=2*wn(2);          % M4
-wn(4)=3*wn(2);          % M6
+wn(1)=2*pi/Td1;
+wn(2)=2*pi/Tm2;
+wn(3)=2*wn(2);
+wn(4)=3*wn(2);
 
-% This loop must be set up such that it varies over bed level.
-for i=1:NH0
+% No. of possible basin lengths 
+N_Lb=length(Lbasin);
+
+for i=1:N_Lb
+x=0:deltaX:Lbasin(i);
 Nx=length(x);
-B(1:Nx)=B0*exp(-x/Lb);      % Basin width for a converging channel  
-% B(1:Nx)=B0;                % when basin width has to be constant.
-H(i,1:Nx)=H0(i);
+%B(1:Nx)=B0*exp(-x/Lb);
+B(1:Nx)=B0;                % when basin width has to be constant.
+H(1:Nx)=H0;
 Z=zeros(Nx-1,Nt);           % Z points shifted half a grid point to the right with respect to Q points. we start with Q point, therefore 1 Z point less than Q points.      
 Q=zeros(Nx,Nt);
-A=(B.*H(i,:))'*ones(1,Nt);       % A at Q points
+A=(B.*H)'*ones(1,Nt);       % A at Q points
 P=B'*ones(1,Nt);            % Wetted perimeter at Q points.
 Inertia=zeros(Nx,Nt);       % Initalize Inertia, Pressure Gradient and Friction for further analysis later on.
 PG=zeros(Nx,Nt);
@@ -93,12 +62,12 @@ Q(Nx,:)=-discharge;                      % river discharge; most often river dis
 
 courant=sqrt(9.8*max(H0))*deltaT/deltaX;
 
-% Courant criteria
+%Courant criteria
 if courant<1
 end 
 
 if courant>=1
-    disp('Courant criteria not met');
+    display('Courant criteria not met');
     break; 
 end 
 
@@ -115,6 +84,7 @@ end
 % First start simple: rectangular basin, no advection, no river flow.
 % Numerical scheme from Speer (1984).
 
+TP=0;
 for pt=1:Nt-1
     for px=2:Nx-1
         Z(px,pt+1)=Z(px,pt)-(deltaT/(0.5*(B(px)+B(px+1))))*(Q(px+1,pt)-Q(px,pt))/deltaX;
@@ -132,7 +102,11 @@ for pt=1:Nt-1
         Fric(px,pt+1)=-Cd*abs(Q(px,pt))*Q(px,pt)*P(px,pt)/(A(px,pt)*A(px,pt));
     end
     Q(1,pt+1)=Q(2,pt+1)+B(1)*deltaX*(Z(1,pt+1)-Z(1,pt))/deltaT;
+TPi=0.5*abs(Q(1,pt+1))*deltaT;
+TP=TP+TPi;
 end
+display(TP);
+
 
 U=Q./A;         % Flow velocity in m/s
 
@@ -152,7 +126,6 @@ U_Mean=U_mean/Nt;
 
 Nsteps=floor(Td1/deltaT);
 for px=1:Nx-1
-    
 coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
 coefout=nlinfit(time(end-Nsteps:end),Z(px,end-Nsteps:end),@harmfit,coefin);
 Z0(i,px)=coefout(1);
@@ -171,32 +144,51 @@ UM6(i,px)=sqrt(coefout(5).^2+coefout(9).^2);
 phaseUM2(i,px)=atan(coefout(3)/coefout(7));
 phaseUM4(i,px)=atan(coefout(4)/coefout(8));
 phaseUM6(i,px)=atan(coefout(5)/coefout(9));
+ZM2(ZM2 == 0) = NaN;
+phaseZM2(phaseZM2 == 0) = NaN;
 end
-%We analyse the size of kL - lenght of estuary*length scale over which
+%We analyse the size of kL - length of estuary*length scale over which
 %tidal phase varies. 
 LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Looking at the size of kL, we predict that the pumping model is
 %representative for M2 in this example, except for when the water height
-%<=2m. 
+%<=2m.
 end
 
-figure
+display(LkM2);
+Matlab2_C=figure; 
+yyaxis left; 
+ylabel('SSE [m]');
 plot(x(2:end),ZM2);
-title('Gironde Estuary: M2 Amplitude');
-xlabel('x [km]');
-ylabel('SSE [m]');
-
-figure
-yyaxis left;
-plot(x(2:end)/1000,ZM2);
-ylabel('SSE [m]');
 hold on
-yyaxis right;
-% plot(x(2:end)/1000,ZM4);
+yyaxis right; 
+ylabel('Phase [rad]');
+plot(x(2:end),phaseZM2);
 hold off
-title('Gironde Estuary: M2 and M4 Tides');
-xlabel('x [km]');
-ylabel('SSE [m]');
-legend('M2 a','b','c','d','e');
-% legend('M2 a','b','c','d','e','M4 a','b','c','d','e');
+title('SSE and phase vs. Basin Length (M2)');
+xlabel('L_{Basin} [m]');
+legend('ZM2 (L = 40km)','ZM2 (L = 110km)','UM2 (L = 40km)','UM2 (L= 110km)');
 grid on;
+saveas(gcf,'Matlab2_C.png');
+
+%C
+%Explain why for the shorter tidal basin the Tidal Prism is larger than the 
+%case that the basin was long. Take two effects into account: The tidal 
+%wave propagation and resonance effects.
+
+%NOTE - Amplitude increases as drag increases LOL
+
+%A tidal prism is the volume of water in an estuary or inlet between mean 
+%high tide and mean low tide. 
+
+%With high surface drag coefficient, M2 is "killed" early, and so is the 
+%effect of resonance. As the lenght of the baisin is bigger when the estuary 
+%is not closed, there will be less tidal prism in the lattter case. With 
+%friction, movement is slow and long baisin has more length to cover. 
+
+%Another point to note is from figure B2_b we noted that the amplitude and
+%speed of M2 are not majorly dampened in the shorter basin. Maybe it is the
+%case because friction plays a bigger role over bigger lenghts. 
+
+%Tidal prism is lower in the 110km basin because when observing the graph
+%we note that quarter wave length is obtained at 40km. 
