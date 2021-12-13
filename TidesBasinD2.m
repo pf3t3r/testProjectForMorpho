@@ -121,6 +121,13 @@ end
 
 U=Q./A;         % Flow velocity in m/s
 
+% D3. Tidally averaged flow velocities
+U_mean=0;
+for pm=1:Nt-1
+U_mean=U_mean+U(:,pm);
+end
+U_Mean=abs(abs(U_mean/Nt))';
+
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You
 % can determine HW level, LW level, moments of LW and HW, propagation speed of LW wave
@@ -174,7 +181,7 @@ grid on;
 
 k = 1.3e-5;
 c = wn(1)./k;
-U = UM2(:,2:41);
+UM2 = UM2(:,2:41);
 phi = phaseZM2(:,2:41)-phaseUM2(:,2:41);
 
 % Theoretical values
@@ -183,8 +190,8 @@ phi_t=ones(40);
 r=Cd;
 c_t = (g*H0)^(1/2);
 k_t = wn(1)/c_t;
-U_t = U_t.*M2amp*wn(1)./(H0*k*(1+(wn(1)/Cd)^(-2))^(1/2)); %check a
-phi_t = phi_t.*-atan(Cd/wn(1));
+UM2_t = U_t*M2amp*c_t/((H0*(1+(wn(1)/(Cd/H0))^(-2))^(1/2))); %check a
+phi_t = phi_t.*-atan((Cd/H0)/wn(1));
 
 display(k);
 display(k_t);
@@ -192,9 +199,9 @@ display(c);
 display(c_t);
 
 figure
-plot(x(2:41),U_t);
+plot(x(2:41),UM2_t);
 hold on
-plot(x(2:41),U);
+plot(x(2:41),UM2);
 hold off
 
 figure
@@ -203,5 +210,14 @@ hold on
 plot(x(2:41),phi);
 hold off
 
+% D3. 
+figure
+plot(x(2:54),U_Mean(2:54));
 
+% Average speed starts from zero at sea boundary and increases up to around 90% of 
+% our estuary, and then slows back down to zero as we enter the river of 
+% constant width. This means that across time, tidal flow is fastest at
+% around 95km inland. This is not surprising??? Also understand why
+% phaseUM2 behaves like that jumping.
 
+% D4. 

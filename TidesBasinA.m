@@ -111,9 +111,9 @@ U=Q./A;         % Flow velocity in m/s
 % A3. Tidally averaged flow velocities
 U_mean=0;
 for pm=1:Nt-1
-U_mean=U_mean+U(pm);
+U_mean=U_mean+U(:,pm);
 end
-U_Mean=U_mean/Nt;
+U_Mean=(U_mean/Nt)';
 
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You

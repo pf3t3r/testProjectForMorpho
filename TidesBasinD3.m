@@ -1,30 +1,5 @@
 clear; close all; clc;
 
-% Solution to Part D of Project 2.
-% In order to answer this question we must determine two parameters based
-% on observations of the Gironde Estuary:
-% i. B_0. This is the width at the entrance of the estuary (defined as a
-% relatively narrow constriction point before reaching the open sea).
-% ii. Briver. This is the width of the river where the estuary stops
-% narrowing. It is supposed to represent the location where the width is
-% determined by the river and not by the tides. Unfortunately in our case
-% it seems like the estuary splits in two before this happens. 
-
-
-% A2 avg = 1.5481
-% A1 avg = 0.1079
-% The yearly averaged semi-diurnal tides are approximately 15x the value of
-% the diurnal tides. Therefore, we can use the shortcut mentioned in the
-% project description, i.e. we use only semi-diurnal tides in this
-% analysis.
-
-% Analysis breaks when H0 > 11.1 m.
-% How can we incorporate the bed levels??
-
-% Solving the shallow water equations in shallow basins and estuaries.
-% Based on Friedrichs (2011), Chapter 3 in Contemporary Issues in Estuarine
-% Physics.
-
 %**************************************************************************
 %**************************************************************************
 %*              Parameter settings
@@ -52,7 +27,7 @@ Briver=0.25e3;           % Width of the river where estuary stops narrowing
                          % 0.2 km width for Dordogne, 0.3 km for Garonne,
                          % so avg taken
 deltaX=Lbasin/80;       % spatial step in meters.
-Lb = -xr/log(Briver/B0); % e-folding length scale    
+Lb = linspace(-xr/log(Briver/B0)*0.66,-xr/log(Briver/B0)*1.5,10); % e-folding length scale    
 M2amp=1.55;              % Amplitude of M2 tide at seaward side <=> This is 
                          % the water level at the mouth.
 discharge=0;             % Constant river discharge at landward boundary. 
@@ -61,11 +36,7 @@ discharge=0;             % Constant river discharge at landward boundary.
 Cd=2.5e-3;               % Drag coefficient
 x=0:deltaX:Lbasin;       % With deltax = c.1.3e3, we have 80 grid points.
 
-H0 = [0.66*8.5 8.5 1.5*8.5]; % Water Height sensitivity analysis
-% H0 = 8.0:0.1:8.5;        % Define the bed level and so the depth of the basin.
-                         % we observe that 8.5 is a good measure for water
-                         % depth, since we see a variation of 10 cm across
-                         % 85 km, corresponding to 6% change.
+H0 = 8.5;                % Water Height 
 NH0 = length(H0);
 %**************************************************************************
 %**************************************************************************
@@ -87,12 +58,13 @@ wn(1)=2*pi/Tm2;         % M2
 wn(2)=2*wn(1);          % M4
 wn(3)=3*wn(1);          % M6
 
+NLb=length(Lb);
 % This loop must be set up such that it varies over bed level.
-for i=1:NH0
+for i=1:NLb
 Nx=length(x);
-B(1:54)=B0*exp(-x(1:54)/Lb);      % Basin width for a converging channel until xr  
+B(1:54)=B0*exp(-x(1:54)/Lb(i));      % Basin width for a converging channel until xr  
 B(55:Nx)=B(54);                % basin width constant after xr
-H(1:Nx)=H0(i);
+H(1:Nx)=H0;
 Z=zeros(Nx-1,Nt);           % Z points shifted half a grid point to the right with respect to Q points. we start with Q point, therefore 1 Z point less than Q points.      
 Q=zeros(Nx,Nt);
 A=(B.*H)'*ones(1,Nt);       % A at Q points
@@ -150,6 +122,13 @@ end
 
 U=Q./A;         % Flow velocity in m/s
 
+% D3. Tidally averaged flow velocities
+U_mean=0;
+for pm=1:Nt-1
+U_mean=U_mean+U(:,pm);
+end
+U_Mean=abs(abs(U_mean/Nt))';
+
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You
 % can determine HW level, LW level, moments of LW and HW, propagation speed of LW wave
@@ -189,71 +168,30 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %representative for M2 in this example, except for when the water height
 %<=2m. 
 
-%Calculation of speed of propagation
-g = 9.81;
-c_theory = sqrt(g*H0);
+%Linear fit for k
+coefs(i,:) = polyfit(x(2:41), phaseZM2(i,2:41), 1);
 end
 
-figure
-plot(x(2:end),ZM2);
-hold on
-%plot(x(2:end),ZM4);
-%plot(x(2:end),ZM6);
-hold off
-title('Gironde Estuary: M2 Amplitude');
-xlabel('x [m]');
-ylabel('SSE [m]');
-grid on;
-legend('shallow water','equilibrium depth','deep water');
+% D4
+% Modeled values
 
 figure
-plot(x(2:54),phaseZM2(:,2:54));
+plot(x(2:41),ZM2(:,2:41));
 grid on;
 
-% kM2 = nlinfit(x,phaseZM2);
-k = [1.934e-5 1.418e-5 9.849e-6];
+figure
+plot(x(2:41),UM2(:,2:41));
+grid on;
+
+k = (coefs(:,1))';
 c = wn(1)./k;
 
-display(c);
-display(c_theory);
-
-% figure
-% yyaxis left;
-% plot(x(2:end)/1000,ZM2);
-% ylabel('SSE [m]');
-% hold on
-% yyaxis right;
-% % plot(x(2:end)/1000,ZM4);
-% hold off
-% title('Gironde Estuary: M2 and M4 Tides');
-% xlabel('x [km]');
-% ylabel('SSE [m]');
-% % legend('M2 a','b','c','d','e','M4 a','b','c','d','e');
-% grid on;
+figure
+for j=1:NLb
+plot(j,c(j));
+grid on;
+end
 
 
-% D1i. Shallow waters: equilibrium is not reached as friction is dominant
-% over convergence and dampens the amplitudes across the basin. Equilibrium
-% figure: the two factors are in balance such that the amplitude is
-% constant up to 75% of the length of xr. Deep waters: equilibrium is not
-% reached either because the tidal convergence dominates over friction.
 
-% D1ii.  After xr, the width is constant, and river dynamics play a
-% dominant role. Hence, we expect higher water levels due to water
-% displacement. [!!!!] This is due to resonance (look at M4, M6) - this is 
-% explained in previous parts as you look at length x-xr.
-
-% D1iii. 
-% C = 7.2680    9.9128   14.2718
-% C_th =  7.4185    9.1315   11.1838
-% The propagation speed according to -kx is similar to that which was 
-% calculated theoretically from the sqrt(gh). It seems like it is slower
-% than the theoretical value, possibly due to friction effects. On the
-% other hand, it is faster than the the theoretical value for the
-% equilbrium value and deep value. In the former case, it is just slightly
-% faster (approx 10%), while for the latter, it is significantly faster
-% (approx 30%). This seems to suggest that the channel convergence has a
-% quickening effect on the velocity.
-% Compare to paper's function for c and explain the crossing by looking at
-% Lb and La. 
 
