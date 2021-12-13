@@ -168,7 +168,7 @@ plot(x(2:end),phaseZM2);
 hold off
 title('SSE and phase vs. Basin Length (M2)');
 xlabel('L_{Basin} [m]');
-legend('ZM2 (L = 40km)','ZM2 (L = 110km)','UM2 (L = 40km)','UM2 (L= 110km)');
+legend('ZM2 (L = 40km)','ZM2 (L = 110km)','Phase ZM2 (L = 40km)','Phase ZM2 (L= 110km)');
 grid on;
 saveas(gcf,'Matlab2_C.png');
 
@@ -195,3 +195,9 @@ saveas(gcf,'Matlab2_C.png');
 
 %Tidal prism is lower in the 110km basin because when observing the graph
 %we note that quarter wave length is obtained at 40km. 
+
+% in the shorter basin, phase doesn't vary meaning it's a standing wave
+% whereas in the longer basin, the phase varies meaning that you will have
+% a lower and higher tide across the length. This explains the fact that
+% the tidal prism is bigger in the shorter basin. More water is displaced
+% overall in the shorter basin. (also noticeable with the wave amplitude in the figure)
