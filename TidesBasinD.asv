@@ -195,10 +195,6 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Looking at the size of kL, we predict that the pumping model is
 %representative for M2 in this example, except for when the water height
 %<=2m. 
-
-%Calculation of speed of propagation
-g = 9.81;
-c_theory = sqrt(g*H0);
 end
 
 figure
@@ -210,15 +206,14 @@ grid on;
 legend('shallow water','equilibrium depth','deep water');
 
 figure
-plot(x(2:54),phaseZM2(:,2:54));
+plot(x(2:end),phaseZM2);
 grid on;
 
 % kM2 = nlinfit(x,phaseZM2);
-k = [1.934e-5 1.418e-5 9.849e-6];
+k = [4.656e-6 1.668e-5 1.095e-5];
 c = wn(1)./k;
 
-display(c);
-display(c_theory);
+
 
 % figure
 % yyaxis left;
@@ -244,15 +239,3 @@ display(c_theory);
 % D1ii.  After xr, the width is constant, and river dynamics play a
 % dominant role. Hence, we expect higher water levels due to water
 % displacement. [!!!!]
-
-% D1iii. 
-% C = 7.2680    9.9128   14.2718
-% C_th =  7.4185    9.1315   11.1838
-% The propagation speed according to -kx is similar to that which was 
-% calculated theoretically from the sqrt(gh). It seems like it is slower
-% than the theoretical value, possibly due to friction effects. On the
-% other hand, it is faster than the the theoretical value for the
-% equilbrium value and deep value. In the former case, it is just slightly
-% faster (approx 10%), while for the latter, it is significantly faster
-% (approx 30%). This seems to suggest that the channel convergence has a
-% quickening effect on the velocity.
