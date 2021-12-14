@@ -126,7 +126,7 @@ U_mean=0;
 for pm=1:Nt-1
 U_mean=U_mean+U(:,pm);
 end
-U_Mean=abs(abs(U_mean/Nt))';
+U_Mean=(abs(U_mean/Nt))';
 
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You
@@ -218,6 +218,10 @@ plot(x(2:54),U_Mean(2:54));
 % our estuary, and then slows back down to zero as we enter the river of 
 % constant width. This means that across time, tidal flow is fastest at
 % around 95km inland. This is not surprising??? Also understand why
-% phaseUM2 behaves like that jumping.
+% phaseUM2 behaves like that jumping. This value is the ratio of discharge
+% to cross sectional area. This figure suggests that the ratio increases up
+% to almost the end of the e-folding length scale. This means that there is
+% higher water flow per volume at the landward portion of the estuary which
+% makes sense as we have higher amplitudes? Or as we are at high tide??
 
 % D4. 

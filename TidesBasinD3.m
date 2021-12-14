@@ -27,7 +27,7 @@ Briver=0.25e3;           % Width of the river where estuary stops narrowing
                          % 0.2 km width for Dordogne, 0.3 km for Garonne,
                          % so avg taken
 deltaX=Lbasin/80;       % spatial step in meters.
-Lb = linspace(-xr/log(Briver/B0)*0.66,-xr/log(Briver/B0)*1.5,10); % e-folding length scale    
+Lb = linspace(-xr/log(Briver/B0)*0.66,-xr/log(Briver/B0)*1.5,5); % e-folding length scale    
 M2amp=1.55;              % Amplitude of M2 tide at seaward side <=> This is 
                          % the water level at the mouth.
 discharge=0;             % Constant river discharge at landward boundary. 
@@ -177,20 +177,30 @@ end
 
 figure
 plot(x(2:41),ZM2(:,2:41));
+title('M2 Amplitude sensitivity to Lb at equilibrium');
+xlabel('x [m]');
+ylabel('SSE [m]');
 grid on;
+legend('Lb=23km','Lb=30km','Lb=38km','Lb=45km','Lb=52km');
 
 figure
 plot(x(2:41),UM2(:,2:41));
+title('M2 flow speed sensitivity to Lb at equilibrium');
+xlabel('x [m]');
+ylabel('UM2 [m/s]');
 grid on;
+legend('Lb=23km','Lb=30km','Lb=38km','Lb=45km','Lb=52km');
 
 k = (coefs(:,1))';
 c = wn(1)./k;
 
 figure
-for j=1:NLb
-plot(j,c(j));
+plot(Lb,c);
+title('Phase speed sensitivity to Lb at equilibrium');
+xlabel('Lb [m]');
+ylabel('c [m/s]');
 grid on;
-end
+
 
 
 
