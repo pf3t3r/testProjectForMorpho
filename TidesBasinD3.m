@@ -178,18 +178,20 @@ end
 figure
 plot(x(2:41),ZM2(:,2:41));
 title('M2 Amplitude sensitivity to Lb at equilibrium');
-xlabel('x [m]');
-ylabel('SSE [m]');
+xlabel('Length [m]');
+ylabel('M2 Amplitude [m]');
 grid on;
 legend('Lb=23km','Lb=30km','Lb=38km','Lb=45km','Lb=52km');
+saveas(gcf,'Matlab2_D4_i.png');
 
 figure
 plot(x(2:41),UM2(:,2:41));
 title('M2 flow speed sensitivity to Lb at equilibrium');
-xlabel('x [m]');
+xlabel('Length [m]');
 ylabel('UM2 [m/s]');
 grid on;
 legend('Lb=23km','Lb=30km','Lb=38km','Lb=45km','Lb=52km');
+saveas(gcf,'Matlab2_D4_ii.png');
 
 k = (coefs(:,1))';
 c = wn(1)./k;
@@ -200,6 +202,7 @@ title('Phase speed sensitivity to Lb at equilibrium');
 xlabel('Lb [m]');
 ylabel('c [m/s]');
 grid on;
+saveas(gcf,'Matlab2_D4_iii.png');
 
 
 

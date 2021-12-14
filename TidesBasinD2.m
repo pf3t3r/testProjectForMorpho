@@ -167,24 +167,22 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %representative for M2 in this example, except for when the water height
 %<=2m. 
 
-%Calculation of speed of propagation
-g = 9.81;
-c_theory = sqrt(g*H0);
+%Linear fit for k
+coefs(i,:) = polyfit(x(2:end-1), phaseZM2(i,2:end), 1);
 end
 
 % D2
 % Modeled values
 
-figure
-plot(x(2:41),phaseZM2(:,2:41));
-grid on;
-
-k = 1.3e-5;
+k = (coefs(:,1))';
 c = wn(1)./k;
+%k = 1.3e-5;
+%c = wn(1)./k;
 UM2 = UM2(:,2:41);
 phi = phaseZM2(:,2:41)-phaseUM2(:,2:41);
 
 % Theoretical values
+g = 9.81;
 U_t=ones(40);
 phi_t=ones(40);
 r=Cd;
@@ -203,16 +201,31 @@ plot(x(2:41),UM2_t);
 hold on
 plot(x(2:41),UM2);
 hold off
+title('Gironde Estuary: M2 Speed');
+xlabel('Length [m]');
+ylabel('UM2 [m/s]');
+grid on;
+saveas(gcf,'Matlab2_D2_i.png');
 
 figure
 plot(x(2:41),phi_t);
 hold on
 plot(x(2:41),phi);
 hold off
+title('Gironde Estuary: phase difference');
+xlabel('Length [m]');
+ylabel('phase [rad]');
+grid on;
+saveas(gcf,'Matlab2_D2_ii.png');
 
 % D3. 
 figure
 plot(x(2:54),U_Mean(2:54));
+title('Gironde Estuary: average flow velocities');
+xlabel('Length [m]');
+ylabel('Flow velocity [m/s]');
+grid on;
+saveas(gcf,'Matlab2_D2_iii.png');
 
 % Average speed starts from zero at sea boundary and increases up to around 90% of 
 % our estuary, and then slows back down to zero as we enter the river of 
