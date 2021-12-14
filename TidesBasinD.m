@@ -18,9 +18,6 @@ clear; close all; clc;
 % project description, i.e. we use only semi-diurnal tides in this
 % analysis.
 
-% Analysis breaks when H0 > 11.1 m.
-% How can we incorporate the bed levels??
-
 % Solving the shallow water equations in shallow basins and estuaries.
 % Based on Friedrichs (2011), Chapter 3 in Contemporary Issues in Estuarine
 % Physics.
@@ -36,22 +33,19 @@ deltaT=25;               % Time step in seconds. Chosen such that the
                          % Warning: If deltaT is too high (but still 
                          % satisfies Courant), the harmfit function may
                          % break.
-xr = 110e3;               % 50 = Point in river at which estuary stops narrowing
-                         % kind of arbitrarily set to the location of Ile 
-                         % de Patiras.
-                         % 73: pt where rivers join
-                         % 110: est splits into two rivers. In the two
-                         % cases the width becomes constant after 107 and
-                         % 111 km respectively (see fig), so we pick 110 as
-                         % an average. 
+xr = 110e3;              % Point in river at which estuary stops narrowing
+                         % the estuary splits into two rivers. In the two 
+                         % cases the width becomes constant after 107 and 
+                         % 111 km respectively (see fig), so we pick 110 
+                         % as an average.
 Lbasin=1.5*xr;           % Length of the basin or estuary in meters
 B0=5.8e3;                % Width of the basin in meters at seaward side.
                          % This is based on Google Earth observations of
                          % the mouth of the Gironde.
 Briver=0.25e3;           % Width of the river where estuary stops narrowing
                          % 0.2 km width for Dordogne, 0.3 km for Garonne,
-                         % so avg taken
-deltaX=Lbasin/80;       % spatial step in meters.
+                         % so average taken. 
+deltaX=Lbasin/80;        % spatial step in meters.
 Lb = -xr/log(Briver/B0); % e-folding length scale    
 M2amp=1.55;              % Amplitude of M2 tide at seaward side <=> This is 
                          % the water level at the mouth.
@@ -189,33 +183,27 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %representative for M2 in this example, except for when the water height
 %<=2m. 
 
-%Calculation of speed of propagation
-g = 9.81;
-c_theory = sqrt(g*H0);
+%Linear fit for k
+coefs(i,:) = polyfit(x(2:end-1), phaseZM2(i,2:end), 1);
 end
 
-figure
+Matlab2_D1 = figure
 plot(x(2:end),ZM2);
 hold on
 %plot(x(2:end),ZM4);
 %plot(x(2:end),ZM6);
 hold off
 title('Gironde Estuary: M2 Amplitude');
-xlabel('x [m]');
-ylabel('SSE [m]');
+xlabel('Length [m]');
+ylabel('M2 Amplitude [m]');
 grid on;
-legend('shallow water','equilibrium depth','deep water');
+legend('Shallow water','Equilibrium depth','Deep water');
+saveas(gcf,'Matlab2_D1_i.png');
 
-figure
-plot(x(2:54),phaseZM2(:,2:54));
+Matlab2_D2 = figure
+plot(x(2:end),phaseZM2);
 grid on;
-
-% kM2 = nlinfit(x,phaseZM2);
-k = [1.934e-5 1.418e-5 9.849e-6];
-c = wn(1)./k;
-
-display(c);
-display(c_theory);
+saveas(gcf,'Matlab2_D1_ii.png');
 
 % figure
 % yyaxis left;
@@ -231,7 +219,6 @@ display(c_theory);
 % % legend('M2 a','b','c','d','e','M4 a','b','c','d','e');
 % grid on;
 
-
 % D1i. Shallow waters: equilibrium is not reached as friction is dominant
 % over convergence and dampens the amplitudes across the basin. Equilibrium
 % figure: the two factors are in balance such that the amplitude is
@@ -244,6 +231,21 @@ display(c_theory);
 % explained in previous parts as you look at length x-xr.
 
 % D1iii. 
+
+%Theoretical calculation of speed of propagation 
+g = 9.81;
+c_theory = sqrt(g*H0);
+
+k = (coefs(:,1))';
+c = wn(1)./abs(k);
+%k = [1.934e-5 1.418e-5 9.849e-6];
+%c = wn(1)./k;
+d = c-c_theory; %diversion from theoretical value
+
+display(c);
+display(c_theory);
+display(d);
+
 % C = 7.2680    9.9128   14.2718
 % C_th =  7.4185    9.1315   11.1838
 % The propagation speed according to -kx is similar to that which was 
