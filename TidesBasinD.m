@@ -163,7 +163,6 @@ ZM2(i,px)=sqrt(coefout(2).^2+coefout(5).^2);
 ZM4(i,px)=sqrt(coefout(3).^2+coefout(6).^2);
 ZM6(i,px)=sqrt(coefout(4).^2+coefout(7).^2);
 phaseZM2(i,px)=atan(coefout(2)/coefout(5));
-%phaseZM2(1,px)=atan(coefout(2)/coefout(5)); %I changed from theory
 phaseZM4(i,px)=atan(coefout(3)/coefout(6));
 phaseZM6(i,px)=atan(coefout(4)/coefout(7));
 % coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];

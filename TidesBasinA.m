@@ -46,7 +46,8 @@ x=0:deltaX:Lbasin;
 Nx=length(x);
 %Length of still water depth vector 
 NH=length(H0);
- 
+
+U_mean=0;
 for i=1:NH
 %B(1:Nx)=B0*exp(-x/Lb);
 B(1:Nx)=B0;                % when basin width has to be constant.
@@ -109,11 +110,11 @@ end
 U=Q./A;         % Flow velocity in m/s
 
 % A3. Tidally averaged flow velocities
-U_mean=0;
 for pm=1:Nt-1
 U_mean=U_mean+U(:,pm);
 end
 U_Mean=(U_mean/Nt)';
+U_Mean(i,:)=U_Mean;
 
 % Analyse last tidal period only. For example determine amplitude and phase of M2, M4, M6 and mean
 % of water level and flow velocity. Design you own code here. I used my code (harmfit). You
@@ -155,17 +156,17 @@ Matlab2_A1=figure
 %sgtitle('Part A');
 subplot(2,1,1)
 plot(x(2:end),ZM2);
-title('M2: Along-basin Change in SSE');
+title('M2: Along-basin Change in M2 Amplitude');
 xlabel('L_{Basin} [m]');
-ylabel('SSE [m]');
+ylabel('Amplitude [m]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
 grid on;
 
 subplot(2,1,2)
 plot(x(2:end),UM2);
-title('M2: Along-basin Change in U');
+title('M2: Along-basin Change in M2 Speed');
 xlabel('L_{Basin} [m]');
-ylabel('U [m/s]');
+ylabel('UM2 [m/s]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
 grid on;
 %savefig(Matlab2_A1);
@@ -174,7 +175,7 @@ saveas(gcf,'Matlab2_A1.png');
 Matlab2_A2=figure
 subplot(3,1,1)
 plot(x(2:end),phaseUM2-phaseZM2);
-title('M2: Phase difference UM2 - ZM2');
+title('M2: Phase Difference UM2 - ZM2');
 xlabel('L_{Basin} [m]');
 ylabel('\Phi [rad]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
@@ -182,7 +183,7 @@ grid on;
 
 subplot(3,1,2)
 plot(x(2:end),phaseZM2);
-title('M2: Along-basin Change in Phase');
+title('M2: Along-basin Change in Phase of M2 Amplitude');
 xlabel('L_{Basin} [m]');
 ylabel('\Phi [rad]');
 legend('H = 2m','H = 3m','H = 4m','H = 5m','H = 6m','H = 7m','H = 8m','H= 9m','H = 10m');
@@ -190,7 +191,7 @@ grid on;
 
 subplot(3,1,3)
 scatter(H0,LkM2);
-title('Pumping model criterion');
+title('Pumping Model Criterion');
 xlabel('H0');
 ylabel('Lk');
 grid on;
@@ -200,31 +201,27 @@ saveas(gcf,'Matlab2_A2.png');
 Matlab2_A3=figure
 subplot(2,1,1)
 yyaxis left;
-plot(x(2:end),ZM4(1,:));
-hold on
-plot(x(2:end),ZM4(end,:));
-ylabel('SSE [m]');
-yyaxis right;
 plot(x(2:end),ZM2(1,:));
-plot(x(2:end),ZM2(end,:));
+ylabel('Amplitude M2 [m]');
+yyaxis right;
+plot(x(2:end),ZM4(1,:));
 hold off
-title('M4 and M2: Deepest and Shallowest Case');
+title('M4 and M2: Shallowest Case');
 xlabel('L_{Basin} [m]');
-ylabel('SSE [m]');
-legend('M4 (H = 2m)','M4 (H = 10m)','M2 (H = 2m)','M2 (H = 10m)');
+ylabel('Amplitude M4 [m]');
+legend('M2 (H = 2m)','M4 (H = 2m)');
 grid on;
 
 subplot(2,1,2)
-plot(x(2:end),UM2(1,:));
-hold on
-plot(x(2:end),UM4(1,:));
-hold off
-title('Flow Velocities for M2 and M4');
+yyaxis left;
+plot(x(2:end),U_Mean(1,2:end));
+ylabel('U_{Mean} [m/s]');
+yyaxis right;
+plot(x(2:end),phaseZM2(1,:)-phaseZM4(1,:));
+ylabel('\Phi [rad]');
+title('Flow Velocities VS Relative Phase Difference Between Amplitudes of M2 and M4 for Shallow Water');
 xlabel('L_{Basin} [m]');
-ylabel('U [m/s]');
-legend('U_{M2}','U_{M4}')
 grid on;
-%savefig(Matlab2_A3);
 saveas(gcf,'Matlab2_A3.png');
 
 %A1. Explain the dependence of tidal amplitude on depth. 
@@ -241,10 +238,10 @@ saveas(gcf,'Matlab2_A3.png');
 %level should be uniform in the basin.
 
 %As computed above, this linearisation is only possible for water heights 
-%over 2m. This can also be observed in the graph above by comparing the
+%over 4m. This can also be observed in the graph above by comparing the
 %amplitude and tidal speed phases. From equation (3.14) it follows that in 
 %short estuaries, the linearized component of tidal velocity is 90° out of 
-%phase with tidal elevation. This means that max U is when Z minimum.
+%phase with tidal elevation. 
 
 % A2. Determine the deformation of the tide for the shallowest case (2 m)
 % and deepest case (10 m) by determining the amplitude of the M4 water
@@ -271,7 +268,6 @@ saveas(gcf,'Matlab2_A3.png');
 % Velocity declines continuously for M2, but M4 begins to increase for 
 % the first part of the basin.
 % Is this correct? I don't think the M4 should have a velocity at zero (?)
-
 
 %Tidal amplification! And standing wave -> 90 degrees phase
 %difference between flow velocities and water levels.
