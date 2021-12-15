@@ -163,6 +163,7 @@ ZM2(i,px)=sqrt(coefout(2).^2+coefout(5).^2);
 ZM4(i,px)=sqrt(coefout(3).^2+coefout(6).^2);
 ZM6(i,px)=sqrt(coefout(4).^2+coefout(7).^2);
 phaseZM2(i,px)=atan(coefout(2)/coefout(5));
+%phaseZM2(1,px)=atan(coefout(2)/coefout(5)); %I changed from theory
 phaseZM4(i,px)=atan(coefout(3)/coefout(6));
 phaseZM6(i,px)=atan(coefout(4)/coefout(7));
 % coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
@@ -172,10 +173,11 @@ U0(px)=coefout(1);
 UM2(i,px)=sqrt(coefout(2).^2+coefout(5).^2);
 UM4(i,px)=sqrt(coefout(3).^2+coefout(6).^2);
 UM6(i,px)=sqrt(coefout(4).^2+coefout(7).^2);
-phaseUM2(i,px)=atan(coefout(2)/coefout(5));
+phaseUM2(i,px)=atan(coefout(2)/coefout(5)); 
 phaseUM4(i,px)=atan(coefout(3)/coefout(6));
 phaseUM6(i,px)=atan(coefout(4)/coefout(7));
 end
+
 %We analyse the size of kL - lenght of estuary*length scale over which
 %tidal phase varies. 
 LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
@@ -186,6 +188,10 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Linear fit for k
 coefs(i,:) = polyfit(x(2:end-1), phaseZM2(i,2:end), 1);
 end
+
+%Fix for behaviour of atan for values >pi/2
+phaseZM2(1,66:end)=phaseZM2(1,66:end)+pi; 
+coefs(1,:) = polyfit(x(2:end-1), phaseZM2(1,2:end), 1);
 
 Matlab2_D1 = figure
 plot(x(2:end),ZM2);

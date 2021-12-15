@@ -146,7 +146,7 @@ Z0(i,px)=coefout(1);
 ZM2(i,px)=sqrt(coefout(2).^2+coefout(5).^2);
 ZM4(i,px)=sqrt(coefout(3).^2+coefout(6).^2);
 ZM6(i,px)=sqrt(coefout(4).^2+coefout(7).^2);
-phaseZM2(i,px)=atan(coefout(2)/coefout(5));
+phaseZM2(i,px)=atan(coefout(2)/coefout(5));   
 phaseZM4(i,px)=atan(coefout(3)/coefout(6));
 phaseZM6(i,px)=atan(coefout(4)/coefout(7));
 % coefin=[0.1, 0.3, 1, 0.2, 0.1, 0.2, 1, 0.2, 0.1];
@@ -156,7 +156,7 @@ U0(px)=coefout(1);
 UM2(i,px)=sqrt(coefout(2).^2+coefout(5).^2);
 UM4(i,px)=sqrt(coefout(3).^2+coefout(6).^2);
 UM6(i,px)=sqrt(coefout(4).^2+coefout(7).^2);
-phaseUM2(i,px)=atan(coefout(2)/coefout(5));
+phaseUM2(i,px)=atan(coefout(2)/coefout(5));  
 phaseUM4(i,px)=atan(coefout(3)/coefout(6));
 phaseUM6(i,px)=atan(coefout(4)/coefout(7));
 end
@@ -170,6 +170,14 @@ LkM2(i)=(phaseUM2(1)+phaseUM2(Nx-1));
 %Linear fit for k
 coefs(i,:) = polyfit(x(2:end-1), phaseZM2(i,2:end), 1);
 end
+
+%WE SHOULD USE ONLY 75% BUT GET WAY BETTER FIT FOR K,C IF WHOLE LENGTH, WHY?
+
+
+%Fix for behaviour of atan for values >pi/2
+phaseZM2(1,66:end)=phaseZM2(1,66:end)+pi; 
+phaseUM2(1,35:end)=phaseUM2(1,35:end)+pi;
+%coefs(1,:) = polyfit(x(2:end-1), phaseZM2(1,2:end), 1);
 
 % D2
 % Modeled values
@@ -189,7 +197,7 @@ r=Cd;
 c_t = (g*H0)^(1/2);
 k_t = wn(1)/c_t;
 UM2_t = U_t*M2amp*c_t/((H0*(1+(wn(1)/(Cd/H0))^(-2))^(1/2))); %check a
-phi_t = phi_t.*-atan((Cd/H0)/wn(1));
+phi_t = phi_t.*-atan((Cd/H0)/wn(1)); 
 
 display(k);
 display(k_t);
