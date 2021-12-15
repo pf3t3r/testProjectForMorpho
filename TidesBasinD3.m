@@ -53,7 +53,7 @@ Nt=length(time);         % Length of time array
 
 % Define frequencies to be analysed.
 global wn
-% wn(1)=2*pi/Td1;         % M1
+% wn(1)=2*pi/Td1;       % M1
 wn(1)=2*pi/Tm2;         % M2
 wn(2)=2*wn(1);          % M4
 wn(3)=3*wn(1);          % M6
